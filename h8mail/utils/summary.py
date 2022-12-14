@@ -25,7 +25,7 @@ def print_summary(start_time, breached_targets):
             print(
                 f"{t.target:^40} | ",
                 c.fg.green,
-                "{:^40}".format("Breach Found (" + str(t.pwned) + " elements)"),
+                "{:^40}".format(f"Breach Found ({str(t.pwned)} elements)"),
                 c.reset,
             )
         else:
