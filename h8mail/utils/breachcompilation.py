@@ -8,7 +8,7 @@ from .localsearch import local_search
 
 def check_shell():
     shell = os.environ['SHELL']
-    print("SHELL IS " + shell)
+    print(f"SHELL IS {shell}")
     if "bash" not in shell:
         c.info_news("If you're having issues or not results, be sure to launch h8mail using bash for this operation.")
         c.info_news("OSX users should read this https://khast3x.club/posts/2021-02-17-h8mail-with-COMB/#targeting-emails\n")
@@ -29,7 +29,7 @@ def clean_targets(targets):
                     new_data = [d[0], re.split("[;:]",d[1])[-1]]
                     cleaned_data.append(new_data)
                 else:
-                    c.info_news("Removing " + d[1] + " (cleaning function)")
+                    c.info_news(f"Removing {d[1]} (cleaning function)")
         t.data = cleaned_data
 
     return targets
@@ -52,8 +52,8 @@ def breachcomp_check(targets, breachcomp_path):
                             t.pwned += 1
                             t.data.append(("BC_PASS", f.content.strip()))
                     else:
-                        c.bad_news(next_dir_to_test + " is neither a file or directory")
-                        
+                        c.bad_news(f"{next_dir_to_test} is neither a file or directory")
+
                     break
 
     targets = clean_targets(targets)

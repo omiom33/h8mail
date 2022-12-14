@@ -32,7 +32,7 @@ def find_files(to_parse, pattern=""):
         for root, _, filenames in os.walk(to_parse):
             for filename in filenames:
                 if pattern in filename:
-                    c.info_news("Using file {}".format(os.path.join(root, filename)))
+                    c.info_news(f"Using file {os.path.join(root, filename)}")
                     allfiles.append(os.path.join(root, filename))
     return allfiles
 
@@ -68,12 +68,7 @@ def print_banner(b_type="intro"):
             c.reset,
         )
     elif "version" in b_type:
-        print(
-            "\t",
-            c.fg.cyan,
-            "Version " + __version__ + ' - "ROCKSMASSON.6" ',
-            c.reset,
-        )
+        print("\t", c.fg.cyan, f'Version {__version__} - "ROCKSMASSON.6" ', c.reset)
 
 
 def fetch_emails(target, user_args):
@@ -82,14 +77,8 @@ def fetch_emails(target, user_args):
     Can be loosy to skip email pattern search.
     """
     if user_args.loose or user_args.user_query is not None:
-        t = target.split(" ")
-        # print(t)
-        return t
-    e = re.findall(r"[\w\.-]+@[\w\.-]+", target)
-    if e:
-        # print(", ".join(e), c.reset)
-        return e
-    return None
+        return target.split(" ")
+    return e if (e := re.findall(r"[\w\.-]+@[\w\.-]+", target)) else None
 
 
 def get_emails_from_file(targets_file, user_args):
@@ -100,7 +89,7 @@ def get_emails_from_file(targets_file, user_args):
     email_obj_list = []
     try:
         target_fd = open(targets_file).readlines()
-        c.info_news("Parsing emails from" + targets_file)
+        c.info_news(f"Parsing emails from{targets_file}")
         for line in target_fd:
             e = fetch_emails(line.strip(), user_args)
             if e is None:
@@ -178,7 +167,7 @@ def check_latest_version():
         )
         data = response.json()
         latest = data["tag_name"]
-        if __version__ == data["tag_name"]:
+        if __version__ == latest:
             c.good_news("h8mail is up to date")
         else:
             c.bad_news(

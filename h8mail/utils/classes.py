@@ -58,11 +58,7 @@ class target:
             )
 
     def not_exists(self, pattern):
-        for d in self.data:
-            if len(d) >= 2:
-                if d[1] == pattern:
-                    return False
-        return True
+        return not any(len(d) >= 2 and d[1] == pattern for d in self.data)
 
     def make_request(
         self,
@@ -104,7 +100,7 @@ class target:
                 print(response.content)
                 # print(response)
         except Exception as ex:
-            c.bad_news("Request could not be made for " + self.target)
+            c.bad_news(f"Request could not be made for {self.target}")
             print(url)
             print(ex)
             print(response)
@@ -113,13 +109,13 @@ class target:
     # New HIBP API
     def get_hibp3(self, api_key):
         try:
-            c.info_news("[" + self.target + "]>[hibp]")
+            c.info_news(f"[{self.target}]>[hibp]")
             sleep(1.3)
             url = f"https://haveibeenpwned.com/api/v3/breachedaccount/{self.target}"
             self.headers.update({"hibp-api-key": api_key})
             response = self.make_request(url)
             if response.status_code not in [200, 404]:
-                c.bad_news("Could not contact HIBP v3 for " + self.target)
+                c.bad_news(f"Could not contact HIBP v3 for {self.target}")
                 print(response.status_code)
                 return
 
@@ -148,19 +144,19 @@ class target:
                 )
 
         except Exception as e:
-            c.bad_news("haveibeenpwned v3: " + self.target)
+            c.bad_news(f"haveibeenpwned v3: {self.target}")
             print(e)
 
     # New HIBP API
     def get_hibp3_pastes(self):
         try:
-            c.info_news("[" + self.target + "]>[hibp-paste]")
+            c.info_news(f"[{self.target}]>[hibp-paste]")
             sleep(1.3)
             url = f"https://haveibeenpwned.com/api/v3/pasteaccount/{self.target}"
 
             response = self.make_request(url)
             if response.status_code not in [200, 404]:
-                c.bad_news("Could not contact HIBP PASTE for " + self.target)
+                c.bad_news(f"Could not contact HIBP PASTE for {self.target}")
                 print(response.status_code)
                 print(response)
                 return
@@ -193,7 +189,7 @@ class target:
                 )
 
         except Exception as ex:
-            c.bad_news("HIBP v3 PASTE error: " + self.target)
+            c.bad_news(f"HIBP v3 PASTE error: {self.target}")
             print(ex)
 
     def get_intelx(self, api_keys):
@@ -208,9 +204,7 @@ class target:
             from .localsearch import local_search
             from os import remove, fspath
 
-            maxfile = 10
-            if api_keys["intelx_maxfile"]:
-                maxfile = int(api_keys["intelx_maxfile"])
+            maxfile = int(api_keys["intelx_maxfile"]) if api_keys["intelx_maxfile"] else 10
             search = intelx_getsearch(self.target, intelx, maxfile)
             if self.debug:
                 import json
@@ -228,9 +222,7 @@ class target:
                     )
                     continue
                 c.good_news(
-                    "["
-                    + self.target
-                    + "]>[intelx.io] Fetching "
+                    f"[{self.target}]>[intelx.io] Fetching "
                     + record["name"]
                     + " as file "
                     + filename
@@ -252,28 +244,20 @@ class target:
                             ),
                         )
                     )
-                # print(contents) # Contains search data
+                        # print(contents) # Contains search data
             for file in intel_files:
                 try:
                     if self.debug:
-                        c.info_news(
-                            "["
-                            + self.target
-                            + f"]>[intelx.io] [DEBUG] Keeping {file}"
-                        )
+                        c.info_news(f"[{self.target}" + f"]>[intelx.io] [DEBUG] Keeping {file}")
                     else:
-                        c.info_news(
-                            "["
-                            + self.target
-                            + f"]>[intelx.io] Removing {file}"
-                        )
+                        c.info_news(f"[{self.target}" + f"]>[intelx.io] Removing {file}")
                         remove(file)
                 except Exception as ex:
-                    c.bad_news("intelx.io cleanup error: " + self.target)
+                    c.bad_news(f"intelx.io cleanup error: {self.target}")
                     print(ex)
 
         except Exception as ex:
-            c.bad_news("intelx.io error: " + self.target)
+            c.bad_news(f"intelx.io error: {self.target}")
             print(ex)
 
     def get_emailrepio(self, api_key=""):
@@ -281,13 +265,13 @@ class target:
             sleep(0.5)
             if len(api_key) != 0:
                 self.headers.update({"Key": api_key})
-                c.info_news("[" + self.target + "]>[emailrep.io+key]")
+                c.info_news(f"[{self.target}]>[emailrep.io+key]")
             else:
-                c.info_news("[" + self.target + "]>[emailrep.io]")
+                c.info_news(f"[{self.target}]>[emailrep.io]")
             url = f"https://emailrep.io/{self.target}"
             response = self.make_request(url)
             if response.status_code not in [200, 404, 429]:
-                c.bad_news("Could not contact emailrep for " + self.target)
+                c.bad_news(f"Could not contact emailrep for {self.target}")
                 print(response.status_code)
                 print(response)
                 return
@@ -326,7 +310,7 @@ class target:
                         self.data.append(
                             (
                                 "EMAILREP_LEAKS",
-                                "{} leaked credentials".format(data["references"]),
+                                f'{data["references"]} leaked credentials',
                             )
                         )
                     c.good_news(
@@ -365,29 +349,27 @@ class target:
             if len(api_key) != 0:
                 self.headers.popitem()
         except Exception as ex:
-            c.bad_news("emailrep.io error: " + self.target)
+            c.bad_news(f"emailrep.io error: {self.target}")
             print(ex)
 
     def get_scylla(self, user_query="email"):
         try:
-            c.info_news("[" + self.target + "]>[scylla.so]")
+            c.info_news(f"[{self.target}]>[scylla.so]")
             sleep(0.5)
             self.headers.update({"Accept": "application/json"})
-            if user_query == "email":
-                uri_scylla = 'email: "' + self.target + '"'
-            elif user_query == "password":
-                uri_scylla = 'password: "' + self.target + '"'
-            elif user_query == "username":
-                uri_scylla = 'name: "' + self.target + '"'
-            elif user_query == "ip":
-                uri_scylla = 'ip: "' + self.target + '"'
+            if user_query == "domain":
+                uri_scylla = f'email: "*@{self.target}"'
+            elif user_query == "email":
+                uri_scylla = f'email: "{self.target}"'
             elif user_query == "hash":
-                uri_scylla = 'passhash: "' + self.target + '"'
-            elif user_query == "domain":
-                uri_scylla = 'email: "*@' + self.target + '"'
-            url = "https://scylla.so/search?q={}".format(
-                requests.utils.requote_uri(uri_scylla)
-            )
+                uri_scylla = f'passhash: "{self.target}"'
+            elif user_query == "ip":
+                uri_scylla = f'ip: "{self.target}"'
+            elif user_query == "password":
+                uri_scylla = f'password: "{self.target}"'
+            elif user_query == "username":
+                uri_scylla = f'name: "{self.target}"'
+            url = f"https://scylla.so/search?q={requests.utils.requote_uri(uri_scylla)}"
 
             # https://github.com/khast3x/h8mail/issues/64
             response = self.make_request(
@@ -398,7 +380,7 @@ class target:
             self.headers.popitem()
 
             if response.status_code not in [200, 404]:
-                c.bad_news("Could not contact scylla.so for " + self.target)
+                c.bad_news(f"Could not contact scylla.so for {self.target}")
                 print(response.status_code)
                 print(response)
                 return
@@ -441,12 +423,12 @@ class target:
                     else:
                         self.data.append(("SCYLLA_SOURCE", "N/A"))
         except Exception as ex:
-            c.bad_news("scylla.so error: " + self.target)
+            c.bad_news(f"scylla.so error: {self.target}")
             print(ex)
 
     def get_hunterio_public(self):
         try:
-            c.info_news("[" + self.target + "]>[hunter.io public]")
+            c.info_news(f"[{self.target}]>[hunter.io public]")
             target_domain = self.target.split("@")[1]
             url = f"https://api.hunter.io/v2/email-count?domain={target_domain}"
             req = self.make_request(url)
@@ -459,12 +441,12 @@ class target:
                 )
             )
         except Exception as ex:
-            c.bad_news("hunter.io (public API) error: " + self.target)
+            c.bad_news(f"hunter.io (public API) error: {self.target}")
             print(ex)
 
     def get_hunterio_private(self, api_key):
         try:
-            c.info_news("[" + self.target + "]>[hunter.io private]")
+            c.info_news(f"[{self.target}]>[hunter.io private]")
             target_domain = self.target.split("@")[1]
             url = f"https://api.hunter.io/v2/domain-search?domain={target_domain}&api_key={api_key}"
             req = self.make_request(url)
@@ -491,13 +473,10 @@ class target:
             if user_query == "ip":
                 user_query = "lastip"
             if user_query == "domain":
-                payload = {"type": "email", "term": "%@" + self.target, "wildcard": "true"}
-            # elif user_query == "hash": If we want hash to search for password instead of reverse searching emails from the hash
-            #     payload = {"hash": self.target}
-            #     api_url = "https://api.snusbase.com/v3/hash"
+                payload = {"type": "email", "term": f"%@{self.target}", "wildcard": "true"}
             else:
                 payload = {"type": user_query, "term": self.target}
-            c.info_news("[" + self.target + "]>[snusbase]")
+            c.info_news(f"[{self.target}]>[snusbase]")
             url = api_url
             self.headers.update({"authorization": api_key})
             # payload = {"type": user_query, "term": self.target}
@@ -531,10 +510,9 @@ class target:
                                     result["hash"].strip() + " : " + result["salt"].strip(),
                                 )
                             )
-                            self.pwned += 1
                         else:
                             self.data.append(("SNUS_HASH", result["hash"]))
-                            self.pwned += 1
+                        self.pwned += 1
                     if "lastip" in result:
                         self.data.append(("SNUS_LASTIP", result["lastip"]))
                         self.pwned += 1
@@ -551,7 +529,7 @@ class target:
 
     def get_leaklookup_pub(self, api_key):
         try:
-            c.info_news("[" + self.target + "]>[leaklookup public]")
+            c.info_news(f"[{self.target}]>[leaklookup public]")
             url = "https://leak-lookup.com/api/search"
             payload = {"key": api_key, "type": "email_address", "query": self.target}
             req = self.make_request(url, meth="POST", data=payload, timeout=20)
@@ -585,7 +563,7 @@ class target:
                     f"Leaklookup does not support {user_query} search (yet)"
                 )
                 return
-            c.info_news("[" + self.target + "]>[leaklookup private]")
+            c.info_news(f"[{self.target}]>[leaklookup private]")
             url = "https://leak-lookup.com/api/search"
             payload = {"key": api_key, "type": user_query, "query": self.target}
             req = self.make_request(url, meth="POST", data=payload, timeout=60)
@@ -626,9 +604,7 @@ class target:
                             ]:
                                 if tag in d.keys():
                                     self.pwned += 1
-                                    self.data.append(
-                                        ("LKLP_GEO", d[tag] + " (type: " + tag + ")")
-                                    )
+                                    self.data.append(("LKLP_GEO", f"{d[tag]} (type: {tag})"))
                             for tag in [
                                 "firstname",
                                 "middlename",
@@ -639,9 +615,7 @@ class target:
                             ]:
                                 if tag in d.keys():
                                     self.pwned += 1
-                                    self.data.append(
-                                        ("LKLP_ID", d[tag] + " (type: " + tag + ")")
-                                    )
+                                    self.data.append(("LKLP_ID", f"{d[tag]} (type: {tag})"))
                     if self.not_exists(db):
                         self.data.append(("LKLP_SOURCE", db))
 
@@ -663,10 +637,10 @@ class target:
 
     def get_weleakinfo_priv(self, api_key, user_query):
         try:
-            c.info_news("[" + self.target + "]>[weleakinfo priv]")
+            c.info_news(f"[{self.target}]>[weleakinfo priv]")
             sleep(0.4)
             url = "https://api.weleakinfo.com/v3/search"
-            self.headers.update({"Authorization": "Bearer " + api_key})
+            self.headers.update({"Authorization": f"Bearer {api_key}"})
             self.headers.update({"Content-Type": "application/x-www-form-urlencoded"})
 
             payload = {"type": user_query, "query": self.target}
@@ -719,11 +693,11 @@ class target:
 
     def get_weleakinfo_pub(self, api_key):
         try:
-            c.info_news("[" + self.target + "]>[weleakinfo public]")
+            c.info_news(f"[{self.target}]>[weleakinfo public]")
             url = "https://api.weleakinfo.com/v3/public/email/{query}".format(
                 query=self.target
             )
-            self.headers.update({"Authorization": "Bearer " + api_key})
+            self.headers.update({"Authorization": f"Bearer {api_key}"})
             req = self.make_request(url, timeout=30)
             self.headers.popitem()
             response = req.json()
@@ -743,7 +717,7 @@ class target:
                 if response["Total"] == 0:
                     return
                 for name, data in response["Data"].items():
-                    self.data.append(("WLI_PUB_SRC", name + " (" + str(data) + ")"))
+                    self.data.append(("WLI_PUB_SRC", f"{name} ({str(data)})"))
         except Exception as ex:
             c.bad_news(
                 f"WeLeakInfo error with {self.target} (public)"
@@ -754,15 +728,15 @@ class target:
         try:
             if user_query == "hash":
                 user_query == "hashed_password"
-            if user_query == "ip":
+            elif user_query == "ip":
                 user_query == "ip_address"
 
-            c.info_news("[" + self.target + "]>[dehashed]")
+            c.info_news(f"[{self.target}]>[dehashed]")
             url = "https://api.dehashed.com/search?query="
             if user_query == "domain":
                 search_query = "email" + ":" + '"*@' + self.target + '"'
             else:
-                search_query = user_query + ":" + '"' + self.target + '"'
+                search_query = f'{user_query}:"{self.target}"'
             self.headers.update({"Accept": "application/json"})
             req = self.make_request(
                 url + search_query, meth="GET", timeout=60, auth=(api_email, api_key)
@@ -810,9 +784,7 @@ class target:
                             and result[tag] is not None
                             and len(result[tag].strip()) > 0
                         ):
-                            self.data.append(
-                                ("DHASHD_ID", result[tag] + " (type: " + tag + ")")
-                            )
+                            self.data.append(("DHASHD_ID", f"{result[tag]} (type: {tag})"))
                             self.pwned += 1
                     # Documentation and JSON are not synced, using both source keys
                     if "obtained_from" in result and self.not_exists(
@@ -833,7 +805,7 @@ class target:
                         )
                     )
             else:
-                c.bad_news("Dehashed error: status code " + str(req.status_code))
+                c.bad_news(f"Dehashed error: status code {str(req.status_code)}")
             self.headers.popitem()
         except Exception as ex:
             c.bad_news(f"Dehashed error with {self.target}")
@@ -841,7 +813,7 @@ class target:
     
     def get_breachdirectory(self, user, passw, user_query):
         # Todo: implement password source search when email has answer
-        c.info_news("[" + self.target + "]>[breachdirectory.org]")
+        c.info_news(f"[{self.target}]>[breachdirectory.org]")
         if user_query not in ["email", "username", "password", "domain"]:
             c.bad_news("Breachdirectory does not support this option")
             exit(1)
@@ -852,49 +824,49 @@ class target:
                     url, timeout=60
                 )
             if req.status_code == 200:
-                    response = req.json()
-                    if response["data"] is not None:
-                        for result in response["data"]:
-                            if "email" in result and "email" not in user_query:
-                                self.data.append(("BREACHDR_EMAIL", result["email"]))
-                            if "password" in result:
-                                self.data.append(("BREACHDR_PASS", result["password"]))
-                            if "hash" in result:
-                                self.data.append(("BREACHDR_HASH", result["hash"]))
-                            if "source" in result:
-                                self.data.append(("BREACHDR_SOURCE", result["source"]))
-                                self.pwned += 1
-                            else:
-                                self.data.append(("BREACHDR_SOURCE", "N/A"))
-                    # Follow up with an aggregated leak sources query
-                    url_src = "https://breachdirectory.org/api/index?username={user}&password={passw}&func={mode}&term={target}".format(user=user, passw=passw, mode="sources", target=self.target)
-                    req = self.make_request(
-                        url_src, timeout=60
-                    )
-                    if req.status_code == 200:
-                        response = req.json()
-                        if response["sources"] is not None:
-                            for result in response["sources"]:
-                                self.data.append(("BREACHDR_EXTSRC", result))
-                    ## If using the 'auto' mode instead of pastes
-                    #     c.good_news(
-                    #         "Found {num} entries for {target} using breachdirectory.org".format(
-                    #             num=str(response["found"]), target=self.target
-                    #         )
-                    #     )
+                response = req.json()
+                if response["data"] is not None:
+                    for result in response["data"]:
+                        if "email" in result and "email" not in user_query:
+                            self.data.append(("BREACHDR_EMAIL", result["email"]))
+                        if "password" in result:
+                            self.data.append(("BREACHDR_PASS", result["password"]))
+                        if "hash" in result:
+                            self.data.append(("BREACHDR_HASH", result["hash"]))
+                        if "source" in result:
+                            self.data.append(("BREACHDR_SOURCE", result["source"]))
+                            self.pwned += 1
+                        else:
+                            self.data.append(("BREACHDR_SOURCE", "N/A"))
+                # Follow up with an aggregated leak sources query
+                url_src = "https://breachdirectory.org/api/index?username={user}&password={passw}&func={mode}&term={target}".format(user=user, passw=passw, mode="sources", target=self.target)
+                req = self.make_request(
+                    url_src, timeout=60
+                )
+                            ## If using the 'auto' mode instead of pastes
+                            #     c.good_news(
+                            #         "Found {num} entries for {target} using breachdirectory.org".format(
+                            #             num=str(response["found"]), target=self.target
+                            #         )
+                            #     )
 
-                    # for result in response["result"]:
-                    #     if result["has_password"] is True:
-                    #         self.data.append(("BREACHDR_PASS", result["password"]))
-                    #         self.data.append(("BREACHDR_MD5", result["md5"]))
-                    #         if result["sources"] == "Unverified":
-                    #             source = result["sources"]
-                    #         elif len(result["sources"]) > 1:
-                    #             source = ", ".join(result["sources"])
-                    #         else:
-                    #             source = result["sources"][0]
-                    #         self.data.append(("BREACHDR_SOURCE", source))
-                    #         self.pwned += 1
+                            # for result in response["result"]:
+                            #     if result["has_password"] is True:
+                            #         self.data.append(("BREACHDR_PASS", result["password"]))
+                            #         self.data.append(("BREACHDR_MD5", result["md5"]))
+                            #         if result["sources"] == "Unverified":
+                            #             source = result["sources"]
+                            #         elif len(result["sources"]) > 1:
+                            #             source = ", ".join(result["sources"])
+                            #         else:
+                            #             source = result["sources"][0]
+                            #         self.data.append(("BREACHDR_SOURCE", source))
+                            #         self.pwned += 1
+            if req.status_code == 200:
+                response = req.json()
+                if response["sources"] is not None:
+                    for result in response["sources"]:
+                        self.data.append(("BREACHDR_EXTSRC", result))
         except Exception as ex:
             c.bad_news(f"Breachdirectory error with {self.target}")
             print(ex)

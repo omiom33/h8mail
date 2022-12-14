@@ -14,7 +14,7 @@ def chase(target, user_args):
     if user_args.debug:
         print(c.fg.red, "\nCHASING DEBUG-----------")
         print(f"Hunting targets from {target.target}")
-        print(f"Recursive Chase Stop is at {user_args.chase_limit}" + c.reset)
+        print(f"Recursive Chase Stop is at {user_args.chase_limit}{c.reset}")
     if user_args.chase_limit > 0:
         for d in target.data:
             if len(d) != 2:
@@ -26,21 +26,18 @@ def chase(target, user_args):
                         "Chasing {new_target} as new target".format(new_target=d[1])
                     )
                     new_targets.append(d[1])
-                else: # in case there is an email as a username
-                    e = re.findall(r"[\w\.-]+@[\w\.-]+", d[1])
-                    if e:
-                        for email in e:
-                            c.good_news(
-                                "Chasing {new_target} as new target (found as pattern)".format(
-                                    new_target=d[1]
-                                )
+                elif e := re.findall(r"[\w\.-]+@[\w\.-]+", d[1]):
+                    for _ in e:
+                        c.good_news(
+                            "Chasing {new_target} as new target (found as pattern)".format(
+                                new_target=d[1]
                             )
-                            new_targets.append(d[1])
+                        )
+                        new_targets.append(d[1])
 
-            else:
-                if "HUNTER_RELATED" in d[0]:
-                    c.good_news(
-                        "Chasing {new_target} as new target".format(new_target=d[1])
-                    )
-                    new_targets.append(d[1])
+            elif "HUNTER_RELATED" in d[0]:
+                c.good_news(
+                    "Chasing {new_target} as new target".format(new_target=d[1])
+                )
+                new_targets.append(d[1])
     return new_targets

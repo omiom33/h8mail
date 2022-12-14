@@ -94,7 +94,7 @@ def local_search(files_to_parse, target_list):
     try:
         async_results = [
             pool.apply_async(worker, args=(f, target_list))
-            for i, f in enumerate(files_to_parse)
+            for f in files_to_parse
         ]
         for r in async_results:
             if r.get() is not None:

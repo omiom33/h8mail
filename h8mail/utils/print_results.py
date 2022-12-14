@@ -16,21 +16,15 @@ def print_results(results, hide=False):
             if len(t.data[i]) >= 2:  # Contains header + body data
                 if hide:
                     if "PASS" in t.data[i][0]:
-                        c.print_result(
-                            t.target, t.data[i][1][:4] + "********", t.data[i][0]
-                        )
+                        c.print_result(t.target, f"{t.data[i][1][:4]}********", t.data[i][0])
                         continue
                     if "LOCAL" in t.data[i][0]:
-                        c.print_result(
-                            t.target, t.data[i][1][:-5] + "********", t.data[i][0]
-                        )
+                        c.print_result(t.target, f"{t.data[i][1][:-5]}********", t.data[i][0])
                         continue
                 if "HIBP" in t.data[i][0]:
                     c.print_result(t.target, t.data[i][1], t.data[i][0])
                 if "HUNTER_PUB" in t.data[i][0]:
-                    c.print_result(
-                        t.target, str(t.data[i][1]) + " RELATED EMAILS", "HUNTER_PUB"
-                    )
+                    c.print_result(t.target, f"{str(t.data[i][1])} RELATED EMAILS", "HUNTER_PUB")
                 if "HUNTER_RELATED" in t.data[i][0]:
                     c.print_result(t.target, t.data[i][1], "HUNTER_RELATED")
                 if "EMAILREP" in t.data[i][0]:

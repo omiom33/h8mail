@@ -46,12 +46,10 @@ def make_temp_directory():
     """
     temp_dir = tempfile.mkdtemp()
     try:
-        fd_emails = open(os.path.join(temp_dir, "test-emails.txt"), "w")
-        fd_emails.writelines(emails)
-        fd_emails.close()
-        fd_creds = open(os.path.join(temp_dir, "test-creds.txt"), "w")
-        fd_creds.writelines(creds)
-        fd_creds.close()
+        with open(os.path.join(temp_dir, "test-emails.txt"), "w") as fd_emails:
+            fd_emails.writelines(emails)
+        with open(os.path.join(temp_dir, "test-creds.txt"), "w") as fd_creds:
+            fd_creds.writelines(creds)
         tar = tarfile.open(os.path.join(temp_dir, "test-creds.tar.gz"), "w:gz")
         tar.add(os.path.join(temp_dir, "test-creds.txt"))
         tar.close()
@@ -67,19 +65,19 @@ class TestH8mail(unittest.TestCase):
     def setUp(self):
         """Generating local files"""
         self.temp_dir = make_temp_directory()
-        print("Created Temp Dir: " + self.temp_dir)
+        print(f"Created Temp Dir: {self.temp_dir}")
         print(os.listdir(self.temp_dir))
         self.filetargets = os.path.join(self.temp_dir, "test-emails.txt")
         self.filetxt = os.path.join(self.temp_dir, "test-creds.txt")
         self.filegz = os.path.join(self.temp_dir, "test-creds.tar.gz")
-        print("Test files generated in : " + self.temp_dir)
+        print(f"Test files generated in : {self.temp_dir}")
 
         # a = open(self.filetxt, "r")
         # print(a.readlines())
 
     def tearDown(self):
         """Cleaning temp files"""
-        print("Removing dir + content: " + self.temp_dir)
+        print(f"Removing dir + content: {self.temp_dir}")
         shutil.rmtree(self.temp_dir)
 
     def test_000_simple(self):

@@ -133,7 +133,7 @@ class colors:
                         colors.fg.lightgrey,
                         colors.bold,
                         colors.fg.green,
-                        "[...]" + data[-135:],
+                        f"[...]{data[-135:]}",
                         colors.reset,
                     )
                 )
@@ -153,7 +153,6 @@ class colors:
                         colors.reset,
                     )
                 )
-        # Underscore to avoid coloring like a HASH
         elif "_HASH" in source:
             print(
                 "{}{:15}{}|{}{:>25.25}{} > {}{}{}".format(
@@ -168,7 +167,6 @@ class colors:
                     colors.reset,
                 )
             )
-        # Underscore to avoid coloring service with "email" in name
         elif "_EMAIL" in source:
             print(
                 "{}{:15}{}|{}{:>25.25}{} > {}{}{}".format(

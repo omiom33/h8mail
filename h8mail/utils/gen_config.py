@@ -5,8 +5,8 @@ import os
 
 def gen_config_file():
     with open(
-        os.path.join(os.getcwd(), "h8mail_config.ini"), "w", newline=""
-    ) as dest_config:
+            os.path.join(os.getcwd(), "h8mail_config.ini"), "w", newline=""
+        ) as dest_config:
         config = """[h8mail]
 ; h8mail will automatically detect present keys & launch services accordingly
 ; Uncomment to activate
@@ -27,7 +27,5 @@ def gen_config_file():
 """
         dest_config.write(config)
         c.good_news(
-            "Generated h8mail template configuration file ({})".format(
-                os.path.join(os.getcwd(), "h8mail_config.ini")
-            )
+            f'Generated h8mail template configuration file ({os.path.join(os.getcwd(), "h8mail_config.ini")})'
         )

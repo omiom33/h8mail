@@ -14,12 +14,10 @@ def fetch_urls(target):
     """
     Returns a list of URLs found in 'target'.
     """
-    # https://www.geeksforgeeks.org/python-check-url-string/
-    e = re.findall(
+    if e := re.findall(
         "http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\), ]|(?:%[0-9a-fA-F][0-9a-fA-F]))+",
         target,
-    )
-    if e:
+    ):
         # print(", ".join(e), c.reset)
         return e
     return None
@@ -53,11 +51,11 @@ def worker_url(url):
     """
     paramsUA = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36"}
     try:
-        c.info_news("Worker fetching " + url)
+        c.info_news(f"Worker fetching {url}")
         r = requests.get(url, params = paramsUA, allow_redirects=False)
         c.info_news("Worker done fetch url")
         print(f"Status code: {r.status_code}")
-    
+
         e = re.findall(r"[\w\.-]+@[\w\.-]+", r.text)
         print(e)
         if e:
@@ -81,15 +79,12 @@ def target_urls(user_args):
         urls = []
         emails = []
         for arg in user_args.user_urls:
-            if os.path.isfile(arg):
-                e = get_urls_from_file(arg)
-            else:
-                e = fetch_urls(arg)
+            e = get_urls_from_file(arg) if os.path.isfile(arg) else fetch_urls(arg)
             if e is None:
                 continue
             else:
                 urls.extend(e)
-        
+
         for url in urls:
             e = worker_url(url)
             # e = get_emails_from_file(tmpfile, user_args)
